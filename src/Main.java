@@ -1,17 +1,15 @@
+
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 import org.hibernate.Query;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
-import java.util.Map;
+import java.util.Date;
+import java.util.List;
 
-/**
- * Created by Сергей on 17.02.2016.
- */
 public class Main {
     private static final SessionFactory ourSessionFactory;
     private static final ServiceRegistry serviceRegistry;
@@ -32,22 +30,43 @@ public class Main {
         return ourSessionFactory.openSession();
     }
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {   // http://javastudy.ru/hibernate/hibernate-hql-examples/
         final Session session = getSession();
         try {
-            System.out.println("querying all the managed entities...");
-            final Map metadataMap = session.getSessionFactory().getAllClassMetadata();
-            for (Object key : metadataMap.keySet()) {
-                final ClassMetadata classMetadata = (ClassMetadata) metadataMap.get(key);
-                final String entityName = classMetadata.getEntityName();
-                final Query query = session.createQuery("from " + entityName);
-                System.out.println("executing: " + query.getQueryString());
-                for (Object o : query.list()) {
-                    System.out.println("  " + o);
-                }
-            }
+//        read();
+        delete();
         } finally {
             session.close();
         }
+    }
+
+    public static void read() {
+        Query query = getSession().createQuery("from UserEntity");
+        List list = query.list();
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(list.get(i));
+        }
+    }
+
+    public static void delete() {
+
+    }
+
+    public static void update(int id, String name, int age, boolean admin, Date date) {
+        Query query = getSession().createQuery("update UserEntity set name = :nameParam, age = :ageParam" +
+                ", createdDate = :createdDateParam, admin = :admin "+
+                " where id = :idCode");
+
+        query.setParameter("idCode", id);
+        query.setParameter("nameParam", name);
+        query.setParameter("ageParam", age );
+        query.setParameter("admin", admin);
+        query.setParameter("createdDateParam", date);
+
+        int result = query.executeUpdate();
+    }
+
+    public static void create() {
+
     }
 }
